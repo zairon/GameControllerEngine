@@ -1,0 +1,176 @@
+<project name="GameControllerEngine" default="dist" basedir=".">
+    <description>
+        Build Sources and JNI C code for Game Controller Engine
+    </description>
+  <!-- Give the script access to the environment variables -->
+  <property environment="env"/>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="bin"/>
+  <property name="dist"  location="dist"/>
+  <property name="dist_native"  location="${dist}/native"/>
+  <property name="dist_jar"  location="${dist}/jar"/>
+  <property name="native"  location="${src}/native"/>
+  <property name="project" value="${ant.project.name}"/>
+  <property name="output"  location="${env.TEMP}/${project}/output"/>
+  <property name="windows" value="Windows"/>
+  <property name="linux" value="Linux"/>
+  <property name="mac" value="Mac"/>
+  <property name="jni_name" value="GameControllerNatives"/>
+  <property name="jni_class" value="com.zairon.${project}.${jni_name}"/>
+  <property name="jni_file" value="com_zairon_${project}_${jni_name}"/>
+  <!-- Could use mingw-w64 to compile and link 32-bit, but it is ornery and does not do well with 32-bit 
+       so go ahead and use vanilla MinGW to do the 32-bit. This means that the bin for MinGW and
+       for mingw-w64 need to be in the path. The gcc executable names are different, so they can be
+       installed side-by-side -->
+  <!-- <property name="gcc32" value="x86_64-w64-mingw32-gcc"/> -->
+  <property name="gcc32" value="gcc"/>
+  <property name="gcc64" value="x86_64-w64-mingw32-gcc"/>
+  <property name="output32" value="32"/>
+  <property name="output64" value="64"/>
+  
+  <!-- Note: env.JAVA_HOME must be set, and it is DIFFERENT from the built-in Ant property java.home
+       java.home is the JRE that Eclipse and/or Ant are using to run Java, not where Java is actually located. -->
+  <echo message="Using java.home=${java.home}"/>
+  <echo message="Using environment variable JAVA_HOME=${env.JAVA_HOME}"/>
+  <echo message="Using PATH=${env.Path}"/>
+  
+  <!-- Set where the JDK home will be. This is where we will look for the JNI headers when compiling. -->
+  <property name="jdk_home" value="${env.JAVA_HOME}"/>
+  <echo message="Using jdk_home=${jdk_home}"/>
+              
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${dist_native}"/>
+    <mkdir dir="${dist_jar}"/>
+    <mkdir dir="${output}"/>
+    <mkdir dir="${native}"/>
+    
+  </target>
+
+  <target name="compile" depends="init" description="compile the source" >
+    
+    <!-- Compile the java code from ${src} into ${build} -->
+    <!-- Note the includeantruntime hack..see http://stackoverflow.com/questions/5103384/ant-warning-includeantruntime-was-not-set 
+         this is set to do true so that old versions of Ant work the same as 1.8+ -->
+    <javac includeantruntime="true" srcdir="${src}" destdir="${build}"/>
+    
+  </target>
+
+  <target name="make_jni_header" depends="compile" description="Make JNI header" >
+    
+    <!-- Make the JNI header for the C code, and force it to be rebuilt -->
+    <javah destdir="${native}" classpath="${build}" class="${jni_class}" force="yes"/>
+    
+  </target>
+  
+  <target name="compile_windows_native32" depends="make_jni_header" description="compile the windows native DLL for 32 bit" >
+    
+    <!-- Compile the native c code -->
+    <exec executable="${gcc32}" failonerror="true">
+        <!--  Turn this on for verbose output -->
+        <!--  <arg value="-v"/> -->
+        <arg value="-c"/>
+        <arg value="-m32"/>
+        <arg line="-I&quot;${jdk_home}/include/&quot;"/>
+        <arg line="-I&quot;${jdk_home}/include/win32&quot;"/>
+        <arg line="-o ${output}/${windows}${jni_name}${output32}.o"/>
+        <arg line="${native}/${windows}${jni_name}.c"/>
+    </exec>
+    
+  </target>
+  
+  <target name="link_windows_native32" depends="compile_windows_native32" description="link the windows native DLL for 32 bit" >
+    
+    <!-- Make the shared library -->
+    <exec executable="${gcc32}" failonerror="true">
+        <!--  Turn this on for verbose output -->
+        <!--  <arg value="-v"/> -->
+        <arg value="-shared"/>
+        <arg value="-m32"/>
+        <!-- Get a recent version of MinGW to make sure this line works...old versions are missing it -->
+        <arg line="--enable-stdcall-fixup"/>
+        <arg line="-o ${dist}/native/${windows}${jni_name}${output32}.dll"/>
+        <arg line="${output}/${windows}${jni_name}${output32}.o"/>
+        <!-- NOTE: this library link line must appear after the name of the module in which the functions from it appear -->
+        <arg line="-lwinmm"/>
+        <arg line="${native}/${windows}${jni_name}.def"/>
+    </exec>
+    
+  </target>
+  
+  <target name="build_windows_native32" depends="link_windows_native32" description="build the windows native DLL for 32 bit"/>
+  
+  <target name="compile_windows_native64" depends="make_jni_header" description="compile the windows native DLL for 64 bit" >
+    
+    <!-- Compile the native c code -->
+    <exec executable="${gcc64}" failonerror="true">
+        <!--  Turn this on for verbose output -->
+        <!--  <arg value="-v"/> -->
+        <arg value="-c"/>
+        <arg value="-m64"/>
+        <arg line="-I&quot;${jdk_home}/include/&quot;"/>
+        <arg line="-I&quot;${jdk_home}/include/win32&quot;"/>
+        <arg line="-o ${output}/${windows}${jni_name}${output64}.o"/>
+        <arg line="${native}/${windows}${jni_name}.c"/>
+    </exec>
+    
+  </target>
+  
+  <target name="link_windows_native64" depends="compile_windows_native64" description="link the windows native DLL for 64 bit" >
+    
+    <!-- Make the shared library -->
+    <exec executable="${gcc64}" failonerror="true">
+        <!--  Turn this on for verbose output -->
+        <!--  <arg value="-v"/> -->
+        <arg value="-shared"/>
+        <arg value="-m64"/>
+        <!-- Get a recent version of MinGW to make sure this line works...old versions are missing it -->
+        <arg line="--enable-stdcall-fixup"/>
+        <arg line="-o ${dist}/native/${windows}${jni_name}${output64}.dll"/>
+        <arg line="${output}/${windows}${jni_name}${output64}.o"/>
+        <!-- NOTE: this library link line must appear after the name of the module in which the functions from it appear -->
+        <arg line="-lwinmm"/>
+        <arg line="${native}/${windows}${jni_name}.def"/>
+    </exec>
+    
+  </target>
+  
+  <target name="build_windows_native64" depends="link_windows_native64" description="build the windows native DLL for 64 bit"/>
+  
+  <target name="dist" depends="compile, build_windows_native32, build_windows_native64" description="generate the distribution" >
+    <!--  Copy the DLLs to the build directory so they get in the JAR -->
+    <!-- Don't do this right now
+    <copy todir="${build}">
+        <fileset dir="${dist_native}"/>
+    </copy>
+     --> 
+     
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <!--  <jar jarfile="${dist}/jar/${project}-${DSTAMP}.jar" basedir="${build}"/> -->
+    <jar jarfile="${dist_jar}/${project}.jar" basedir="${build}"/>
+    
+    <!-- Refresh the Java Filesystem for native additions, since we are adding a bunch of stuff to it. -->
+    <eclipse.refreshLocal resource="${project}/src/native" depth="infinite" />
+    <!-- Refresh the Java Filesystem for distribution, since we are adding a bunch of stuff to it. -->
+    <eclipse.refreshLocal resource="${project}/dist" depth="infinite" />
+    <!-- Refresh the Java Filesystem for bin -->
+    <eclipse.refreshLocal resource="${project}/bin" depth="infinite" />
+    
+  </target>
+
+  <target name="clean" description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+    
+    <!-- Remove the JNI header -->
+    <delete file="${native}/${jni_file}.h"/>
+    
+  </target>
+  
+</project>
