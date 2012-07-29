@@ -5,7 +5,7 @@ package com.zairon.GameControllerEngine;
  * @author Michael Watkins
  *
  */
-public class NullGameController extends GameController
+public class NullGameController extends XBoxGameController
 {
     /**
      * Protect the controller from instantiation (make it come from the factory).

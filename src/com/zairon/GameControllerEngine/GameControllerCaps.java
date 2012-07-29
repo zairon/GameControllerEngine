@@ -321,5 +321,31 @@ public class GameControllerCaps
     {
         return this.hasPOVCts;
     }
+
+    /**
+     * Print the object to the console
+     */
+    public void print()
+    {
+        print("");
+    }
     
+    /**
+     * Print the object to the console
+     * @param pre Any preamble for the print
+     */
+    public void print(String pre)
+    {
+        System.out.println(pre + "Controller  name=" + getName() + " numButtons=" + getNumButtons() + " numAxes=" + getNumAxes());    
+        System.out.println(pre + "  minX=" + getMinX() + " maxX=" + getMaxX());    
+        System.out.println(pre + "  minY=" + getMinY() + " maxY=" + getMaxY());    
+        System.out.println(pre + "  minZ=" + getMinZ() + " maxZ=" + getMaxZ());    
+        System.out.println(pre + "  minR=" + getMinR() + " maxR=" + getMaxR());    
+        System.out.println(pre + "  minU=" + getMinU() + " maxU=" + getMaxU());    
+        System.out.println(pre + "  minV=" + getMinV() + " maxV=" + getMaxV());    
+        System.out.println(pre + "  hasZ=" + hasZ());    
+        System.out.println(pre + "  hasR=" + hasR() + " hasU=" + hasU() + " hasV=" + hasV());    
+        System.out.println(pre + "  hasPOV=" + hasPOV() + " hasPOV4Dir=" + hasPOV4Dir() + " hasPOVCts=" + hasPOVCts());    
+        
+    }
 }

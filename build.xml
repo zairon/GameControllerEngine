@@ -23,8 +23,11 @@
        so go ahead and use vanilla MinGW to do the 32-bit. This means that the bin for MinGW and
        for mingw-w64 need to be in the path. The gcc executable names are different, so they can be
        installed side-by-side -->
-  <!-- <property name="gcc32" value="x86_64-w64-mingw32-gcc"/> -->
-  <property name="gcc32" value="gcc"/>
+  <!-- Found out that -m32 does not work for the mingw-w64 compiler because it is 64-bit native. Luckily
+       they make mingw-w32, which is the same thing as mingw-w64 but native for 32-bit. This lets us use
+       XInput for the joystick library instead of winmm! The 32-bit gcc is called i686-w64-mingw32-gcc -->
+  <property name="gcc32" value="i686-w64-mingw32-gcc"/>
+  <!-- <property name="gcc32" value="gcc"/> -->
   <property name="gcc64" value="x86_64-w64-mingw32-gcc"/>
   <property name="output32" value="32"/>
   <property name="output64" value="64"/>
@@ -49,6 +52,9 @@
     <mkdir dir="${dist_jar}"/>
     <mkdir dir="${output}"/>
     <mkdir dir="${native}"/>
+    
+    <!-- Refresh the Java Filesystem for native additions in case the c code changed outside of the editor. -->
+    <eclipse.refreshLocal resource="${project}/src/native" depth="infinite" />
     
   </target>
 
@@ -98,6 +104,9 @@
         <arg line="${output}/${windows}${jni_name}${output32}.o"/>
         <!-- NOTE: this library link line must appear after the name of the module in which the functions from it appear -->
         <arg line="-lwinmm"/>
+        <!-- A weird thing...MinGW-w64 has a link library for XInput, but doesn't provide a header. That header is put into the project
+             and just copied from the Windows SDK -->
+        <arg line="-lxinput"/>
         <arg line="${native}/${windows}${jni_name}.def"/>
     </exec>
     
@@ -135,6 +144,9 @@
         <arg line="${output}/${windows}${jni_name}${output64}.o"/>
         <!-- NOTE: this library link line must appear after the name of the module in which the functions from it appear -->
         <arg line="-lwinmm"/>
+        <!-- A weird thing...MinGW-w64 has a link library for XInput, but doesn't provide a header. That header is put into the project
+             and just copied from the Windows SDK -->
+        <arg line="-lxinput"/>
         <arg line="${native}/${windows}${jni_name}.def"/>
     </exec>
     

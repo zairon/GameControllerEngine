@@ -73,9 +73,9 @@ public class GameControllerNatives
     public static native int getNumControllers();
     
     /**
-     * Get the name of the controller given
-     * @param id The id of the controller to get the name for
-     * @return The string with the name for the controller
+     * Return whether the controller is connected
+     * @param id The id of the controller to check
+     * @return true if the controller is connected, false otherwise
      */
     public static native boolean isConnected(int id);
     
@@ -128,6 +128,77 @@ public class GameControllerNatives
      * @return true if the controller is connected, false if the controller is not connected.
      */
     public static native boolean getControllerState(int id, GameControllerState state);
+    
+    /**
+     * Get the number of controllers supported by XInput. This is not
+     * the number of controllers connected.
+     * @return The number of controllers supported by XInput.
+     */
+    public static native int getXInputNumControllers();
+    
+    /**
+     * Return whether the controller ID given is a valid XInput controller
+     * @param id The id of the controller to check
+     * @return true if the controller supports XInput, false otherwise
+     */
+    public static native boolean isXInputController(int id);
+    
+    /**
+     * Return whether the controller is connected for XInput
+     * @param id The id of the controller to check
+     * @return true if the controller is connected, false otherwise
+     */
+    public static native boolean isXInputConnected(int id);
+    
+    /**
+     * Get the name of the controller given for XInput
+     * @param id The id of the controller to get the name for
+     * @return The string with the name for the controller
+     */
+    public static native String getXInputControllerName(int id);
+    
+    /**
+     * Get a list with the id's of the connected controllers for XInput
+     * @return An array list with the connected controllers.
+     */
+    public static ArrayList<Integer> getXInputConnectedControllers()
+    {
+        ArrayList<Integer> list=new ArrayList<Integer>();
+        
+        int numControllers=getXInputNumControllers();
+        
+        for(int i=0 ; i < numControllers ; ++i)
+        {
+            if(isXInputConnected(i))
+            {
+                list.add(new Integer(i));
+            }
+        }
+        
+        return list;        
+    }
+    
+    /**
+     * Get the number of buttons for an XInput controller.
+     * @param id The id of the controller to get the number of buttons for
+     * @return The number of buttons on the controller
+     */
+    public static native int getXInputNumButtons(int id);
+    
+    /**
+     * Get the capabilities for the controller for XInput
+     * @param id The id of the controller to get the capabilities for
+     * @return The capabilities for the controller.
+     */
+    public static native GameControllerCaps getXInputControllerCaps(int id);
+    
+    /**
+     * Get the controller state for XInput.
+     * @param id The id of the controller to get the name for
+     * @param state The object that will contain the controller state
+     * @return true if the controller is connected, false if the controller is not connected.
+     */
+    public static native boolean getXInputControllerState(int id, GameControllerState state);
     
     static
     {

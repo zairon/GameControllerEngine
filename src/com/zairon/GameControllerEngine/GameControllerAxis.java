@@ -10,6 +10,16 @@ package com.zairon.GameControllerEngine;
 public class GameControllerAxis
 {
     /**
+     * The neutral position on the axis
+     */
+    public static final float NEUTRAL=0.0f;
+
+    /**
+     * Value for testing if the neutral axis through integer bits of a float
+     */
+    public static final int NEUTRAL_TEST=Float.floatToIntBits(NEUTRAL);
+
+    /**
      * The position on the axis
      */
     private float p;
@@ -89,7 +99,7 @@ public class GameControllerAxis
     {
         if(Math.abs(p) <= deadZone)
         {
-            this.p=0.0f;
+            this.p=NEUTRAL;
         }
         else
         {
@@ -98,6 +108,15 @@ public class GameControllerAxis
         
     }
 
+    /**
+     * Return whether the axis is in neutral position
+     * @return true if the axis is in neutral position, false otherwise
+     */
+    public boolean isNeutral()
+    {
+        return Float.floatToIntBits(this.p)==NEUTRAL_TEST;
+    }
+    
     @Override
     public String toString()
     {

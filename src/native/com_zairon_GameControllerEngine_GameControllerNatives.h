@@ -56,6 +56,62 @@ JNIEXPORT jobject JNICALL Java_com_zairon_GameControllerEngine_GameControllerNat
 JNIEXPORT jboolean JNICALL Java_com_zairon_GameControllerEngine_GameControllerNatives_getControllerState
   (JNIEnv *, jclass, jint, jobject);
 
+/*
+ * Class:     com_zairon_GameControllerEngine_GameControllerNatives
+ * Method:    getXInputNumControllers
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_zairon_GameControllerEngine_GameControllerNatives_getXInputNumControllers
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_zairon_GameControllerEngine_GameControllerNatives
+ * Method:    isXInputController
+ * Signature: (I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_zairon_GameControllerEngine_GameControllerNatives_isXInputController
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     com_zairon_GameControllerEngine_GameControllerNatives
+ * Method:    isXInputConnected
+ * Signature: (I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_zairon_GameControllerEngine_GameControllerNatives_isXInputConnected
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     com_zairon_GameControllerEngine_GameControllerNatives
+ * Method:    getXInputControllerName
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_zairon_GameControllerEngine_GameControllerNatives_getXInputControllerName
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     com_zairon_GameControllerEngine_GameControllerNatives
+ * Method:    getXInputNumButtons
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_com_zairon_GameControllerEngine_GameControllerNatives_getXInputNumButtons
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     com_zairon_GameControllerEngine_GameControllerNatives
+ * Method:    getXInputControllerCaps
+ * Signature: (I)Lcom/zairon/GameControllerEngine/GameControllerCaps;
+ */
+JNIEXPORT jobject JNICALL Java_com_zairon_GameControllerEngine_GameControllerNatives_getXInputControllerCaps
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     com_zairon_GameControllerEngine_GameControllerNatives
+ * Method:    getXInputControllerState
+ * Signature: (ILcom/zairon/GameControllerEngine/GameControllerState;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_zairon_GameControllerEngine_GameControllerNatives_getXInputControllerState
+  (JNIEnv *, jclass, jint, jobject);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,20 +1,12 @@
 package com.zairon.GameControllerEngine;
 
 /**
- * A windows game controller.
+ * The game controller interface.
  * @author Michael Watkins
  *
  */
-public class WindowsGameController extends XBoxGameController
+public class XBoxGameController extends GameController
 {
-    /**
-     * Protect the controller from instantiation (make it come from the factory).
-     */
-    protected WindowsGameController()
-    {
-        super();
-    }
-
     /**
      * Try to reconnect the controller if disconnected. This will refresh the capabilities
      * after doing poll to check for connection.
@@ -30,7 +22,7 @@ public class WindowsGameController extends XBoxGameController
         else
         {
             // refresh the capabilities
-            caps=GameControllerNatives.getControllerCaps(getId());
+            caps=GameControllerNatives.getXInputControllerCaps(getId());
             
             return true;
         }
@@ -46,7 +38,7 @@ public class WindowsGameController extends XBoxGameController
     public boolean poll()
     {
         // update the state
-        if(!GameControllerNatives.getControllerState(getId(), getState()))
+        if(!GameControllerNatives.getXInputControllerState(getId(), getState()))
         {
             return false;
         }
@@ -55,7 +47,7 @@ public class WindowsGameController extends XBoxGameController
         xyPoint.setPos(state.getX(), state.getY());
         zAxis.setP(state.getZ());
         leftTriggerAxis.setP(state.getLeftTrigger());
-        rightTriggerAxis.setP(state.getRightTrigger());        
+        rightTriggerAxis.setP(state.getRightTrigger());
         ruPoint.setPos(state.getR(), state.getU());
         vAxis.setP(state.getV());
         
@@ -71,6 +63,28 @@ public class WindowsGameController extends XBoxGameController
         
         // return that the controller is connected
         return true;
+    }
+
+    /**
+     * Determine if the left trigger is pressed. 
+     * XBox controllers can use XInput and have separate axes for left and right trigger,
+     * so override this to be able to separate triggers.
+     * @return true if left trigger is pressed, false otherwise
+     */
+    public boolean isLeftTriggerPressed()
+    {
+        return (leftTriggerAxis.getP() > GameControllerAxis.NEUTRAL);
+    }
+    
+    /**
+     * Determine if the right trigger is pressed.
+     * XBox controllers can use XInput and have separate axes for left and right trigger,
+     * so override this to be able to separate triggers.
+     * @return true if right trigger is pressed, false otherwise
+     */
+    public boolean isRightTriggerPressed()
+    {
+        return (rightTriggerAxis.getP() > GameControllerAxis.NEUTRAL);
     }
 
 }

@@ -1,10 +1,5 @@
 package com.zairon.GameControllerEngine;
 
-/**
- * The game controller interface.
- * @author Michael Watkins
- *
- */
 public abstract class GameController
 {
     /**
@@ -48,6 +43,16 @@ public abstract class GameController
     protected GameControllerAxis zAxis=new GameControllerAxis(DEFAULT_DEAD_ZONE);
 
     /**
+     * The game controller left trigger axis, only ranges between 0.0 and 1.0.
+     */
+    protected GameControllerAxis leftTriggerAxis=new GameControllerAxis(DEFAULT_DEAD_ZONE);
+
+    /**
+     * The game controller right trigger axis, only ranges between 0.0 and 1.0.
+     */
+    protected GameControllerAxis rightTriggerAxis=new GameControllerAxis(DEFAULT_DEAD_ZONE);
+
+    /**
      * The game controller r/u point
      */
     protected GameControllerPoint ruPoint=new GameControllerPoint(DEFAULT_DEAD_ZONE);
@@ -76,67 +81,15 @@ public abstract class GameController
      * after doing poll to check for connection.
      * @param true if the reconnect was successful, false if the controller is still disconnected.
      */
-    public boolean reconnect()
-    {
-        // poll for reconnection
-        if(!poll())
-        {
-            return false;
-        }
-        else
-        {
-            // refresh the capabilities
-            caps=GameControllerNatives.getControllerCaps(getId());
-            
-            return true;
-        }
-
-    }
-    
+    public abstract boolean reconnect();    
     /**
      * Poll the game controller, refreshing the state of the controller. This will
      * also update whether the controller is connected.  Note that polling can return connected
      * without refreshing capabilities, so care must be taken when determining if connected.
      * @return true if the controller is connected, false otherwise.
      */
-    public boolean poll()
-    {
-        // update the state
-        if(!GameControllerNatives.getControllerState(getId(), getState()))
-        {
-            return false;
-        }
-        
-        // state is updated, set the axis values for dead zone
-        xyPoint.setPos(state.getX(), state.getY());
-        zAxis.setP(state.getZ());
-        ruPoint.setPos(state.getR(), state.getU());
-        vAxis.setP(state.getV());
-        
-        // if the POV is neutral, use 0,0, otherwise figure out
-        if(isPOVPressed())
-        {
-            povPoint.setAngle(state.getPOV(), DEFAULT_POV_RADIUS);    
-        }
-        else
-        {
-            povPoint.setPos(0.0f, 0.0f);
-        }
-        
-        // return that the controller is connected
-        return true;
-    }
+    public abstract boolean poll();
 
-    /**
-     * Return whether the POV hat is pressed or neutral.
-     * @return true if the POV is being pressed, false if the POV is neutral
-     */
-    public boolean isPOVPressed()
-    {
-        // the POV is in neutral if the position reported is greater than or equal to 360.0f
-        return (state.getPOV() < 360.0f);
-    }
-    
     /**
      * Get the id for the controller
      * @return The ID for the controller
@@ -201,6 +154,24 @@ public abstract class GameController
     }
 
     /**
+     * Get the left trigger axis value, corrected for dead zone. Only between 0.0f and 1.0f
+     * @return The left trigger axis value
+     */
+    public GameControllerAxis getLeftTrigger()
+    {
+        return leftTriggerAxis;
+    }
+
+    /**
+     * Get the right trigger axis value, corrected for dead zone. Only between 0.0f and 1.0f
+     * @return The right trigger axis value
+     */
+    public GameControllerAxis getRightTrigger()
+    {
+        return rightTriggerAxis;
+    }
+
+    /**
      * Get the r/u point, corrected for dead zone.
      * @return The r/u point
      */
@@ -226,4 +197,94 @@ public abstract class GameController
     {
         return povPoint;
     }
+    
+    /**
+     * Return whether the POV hat is pressed or neutral.
+     * @return true if the POV is being pressed, false if the POV is neutral
+     */
+    public boolean isPOVPressed()
+    {
+        // the POV is in neutral if the position reported is greater than or equal to 360.0f
+        return (state.getPOV() < 360.0f);
+    }
+
+    /**
+     * Determine if the left trigger is pressed. Override this to use other trigger criteria.
+     * @return true if left trigger is pressed, false otherwise
+     */
+    public boolean isLeftTriggerPressed()
+    {
+        // if the z-axis is greater than the neutral axis position, then the left trigger is pressed
+        // since the axis considers the dead zone, it will only trigger when the axis is past the dead zone.
+        return (zAxis.getP() > GameControllerAxis.NEUTRAL);
+    }
+    
+    /**
+     * Determine if the right trigger is pressed. Override this to use other trigger criteria.
+     * @return true if right trigger is pressed, false otherwise
+     */
+    public boolean isRightTriggerPressed()
+    {
+        // if the z-axis is less than the neutral axis position, then the right trigger is pressed
+        // since the axis considers the dead zone, it will only trigger when the axis is past the dead zone.
+        return (zAxis.getP() < GameControllerAxis.NEUTRAL);
+    }
+    
+    /**
+     * For controllers with triggers, this compares the z axis against a dead zone
+     * @return
+     */
+    public boolean isTriggerPressed(GameControllerButtons button)
+    {
+        if(button==GameControllerButtons.LEFT_TRIGGER)
+        {
+            return isLeftTriggerPressed();
+        }
+        else if(button==GameControllerButtons.RIGHT_TRIGGER)
+        {
+            return isRightTriggerPressed();
+        }
+        else
+        {
+            // regular button, not a trigger
+            return false;
+        }
+    }
+    
+    /**
+     * Return true if a particular button is pressed
+     * @param button The number for the button from 0 to MAX_BUTTONS
+     * @return true if the button is pressed, false otherwise.
+     */
+    public boolean isPressed(int button)
+    {
+        // handle the special cases of triggers
+        if(GameControllerButtons.LEFT_TRIGGER.is(button))
+        {
+            // if the z-axis is greater than maximum the z-deflection, then the left trigger is pressed
+            return isLeftTriggerPressed();
+        }
+        else if(GameControllerButtons.RIGHT_TRIGGER.is(button))
+        {
+            // if the z-axis is less than the minimum z-deflection, then the right trigger is pressed
+            return isRightTriggerPressed();
+        }
+        else
+        {
+            // kind of bad practice, but access the array directly
+            return state.buttons[button];
+        }
+        
+    }
+        
+    /**
+     * Return true if a particular button is pressed
+     * @param button The GameControllerButtons enumeration value
+     * @return true if the button is pressed, false otherwise.
+     */
+    public boolean isPressed(GameControllerButtons button)
+    {        
+        return isPressed(button.ordinal());
+    }
+
 }

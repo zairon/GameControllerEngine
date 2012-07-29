@@ -33,6 +33,20 @@ public class GameControllerState
     private float z;
     
     /**
+     * The value for the left trigger of the controller. If this is not
+     * an XInput-derived controller, this is inferred from the z-axis value.
+     * This value only ranges between 0.0f and 1.0f
+     */
+    private float leftTrigger;
+    
+    /**
+     * The value for the right trigger of the controller. If this is not
+     * an XInput-derived controller, this is inferred from the z-axis value.
+     * This value only ranges between 0.0f and 1.0f
+     */
+    private float rightTrigger;
+    
+    /**
      * The value for the r-axis of the controller
      */
     private float r;
@@ -60,7 +74,7 @@ public class GameControllerState
     /**
      * The array of buttons and whether they are pressed
      */
-    private boolean buttons[]=new boolean[MAX_BUTTONS];
+    boolean buttons[]=new boolean[MAX_BUTTONS];
     
     /**
      * Return whether the controller is connected. If not connected, the capabilities
@@ -97,6 +111,30 @@ public class GameControllerState
     public float getZ()
     {
         return z;
+    }
+
+    /**
+     * Get the value for the left trigger, ranging from 0.0 to 1.0.
+     * If this is not retrieved from an XInput source, then this value
+     * is inferred from the z-axis value. In that case, it is not possible
+     * to detect if both trigger controllers are pressed.
+     * @return the z-axis value
+     */
+    public float getLeftTrigger()
+    {
+        return leftTrigger;
+    }
+
+    /**
+     * Get the value for the right trigger, ranging from 0.0 to 1.0.
+     * If this is not retrieved from an XInput source, then this value
+     * is inferred from the z-axis value. In that case, it is not possible
+     * to detect if both trigger controllers are pressed.
+     * @return the z-axis value
+     */
+    public float getRightTrigger()
+    {
+        return rightTrigger;
     }
 
     /**
@@ -145,6 +183,15 @@ public class GameControllerState
     }
     
     /**
+     * Get the buttons array
+     * @return The buttons array, with true in the array indicating the button is pressed.
+     */
+    public boolean[] getButtons()
+    {
+        return buttons;
+    }
+        
+    /**
      * Return true if a particular button is pressed
      * @param button The number for the button from 0 to MAX_BUTTONS
      * @return true if the button is pressed, false otherwise.
@@ -153,5 +200,37 @@ public class GameControllerState
     {
         return this.buttons[button];
     }
+
+    /**
+     * Print the object to the console
+     */
+    public void print()
+    {
+        print("");
+    }
     
+    /**
+     * Print the object to the console
+     * @param pre Any preamble for the print
+     */
+    public void print(String pre)
+    {
+        System.out.println(pre + "Controller State");
+        System.out.println(pre + "  x=(" + getX() + ") y=(" + getY() + ") z=" + getZ());
+        System.out.println(pre + "  r=(" + getR() + ") u=(" + getU() + ") v=" + getV());
+        System.out.println(pre + "  leftTrigger=(" + getLeftTrigger() + ") rightTrigger=(" + getRightTrigger() + ")");
+        System.out.println(pre + "  pov=(" + getPOV() + ") angle=" + getPOV());
+        System.out.println(pre + "  buttonMap=" + getButtonMap());    
+        System.out.println(pre + "  buttons=");    
+        System.out.println(pre + "    {");    
+        
+        for(int i=0 ; i < MAX_BUTTONS ; ++i)
+        {
+            System.out.println(pre + "    [" + i + "]=" + isPressed(i));    
+        }
+        
+        System.out.println(pre + "    }");    
+        
+    }
+
 }
