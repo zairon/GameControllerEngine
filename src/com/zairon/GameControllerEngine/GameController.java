@@ -53,7 +53,7 @@ public abstract class GameController
     protected GameControllerAxis rightTriggerAxis=new GameControllerAxis(DEFAULT_DEAD_ZONE);
 
     /**
-     * The game controller r/u point
+     * The game controller r/u point. The r axis is up/down and u is left/right.
      */
     protected GameControllerPoint ruPoint=new GameControllerPoint(DEFAULT_DEAD_ZONE);
 
@@ -172,7 +172,7 @@ public abstract class GameController
     }
 
     /**
-     * Get the r/u point, corrected for dead zone.
+     * Get the r/u point, corrected for dead zone. Note that R is up/down and U is left/right.
      * @return The r/u point
      */
     public GameControllerPoint getRU()

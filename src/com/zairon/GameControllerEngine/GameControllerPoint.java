@@ -20,6 +20,11 @@ public class GameControllerPoint
     private float y;
     
     /**
+     * Flag indicating the axis is neutral
+     */
+    private boolean neutral;
+    
+    /**
      * The dead zone.
      */
     private float deadZone;
@@ -142,6 +147,15 @@ public class GameControllerPoint
     }
     
     /**
+     * If the axes are not deflected, then the controller point will indicate neutral.
+     * @return The point is neutral.
+     */
+    public boolean isNeutral()
+    {
+        return neutral; 
+    }
+    
+    /**
      * Test the coordinates for the dead zone. If the position is in
      * the radius of the dead zone, then zero both coordinates. If either
      * coordinate is within the dead zone, it will be zeroed separately.
@@ -157,27 +171,49 @@ public class GameControllerPoint
             // both of the coordinates are within the dead zone, so make both zero
             this.x=0.0f;
             this.y=0.0f;
+            
+            // set the neutral flag
+            neutral=true;
         }
         else
         {
-            // the stick position is outside the dead zone
-            // now test individual coordinates for being in the dead zone
-            if(Math.abs(x) <= deadZone)
+            float xAbs=Math.abs(x);
+            float yAbs=Math.abs(y);
+            
+            // if both are in the dead zone, make neutral
+            if((xAbs <= deadZone) && (yAbs <= deadZone))
             {
                 this.x=0.0f;
-            }
-            else
-            {
-                this.x=x;
-            }
-            
-            if(Math.abs(y) <= deadZone)
-            {
                 this.y=0.0f;
+                
+                // set the neutral flag
+                neutral=true;
             }
             else
             {
-                this.y=y;
+                // stick is not neutral
+                neutral=false;
+                
+                // the stick position is outside the dead zone
+                // now test individual coordinates for being in the dead zone
+                if(xAbs <= deadZone)
+                {
+                    this.x=0.0f;
+                }
+                else
+                {
+                    this.x=x;
+                }
+                
+                if(yAbs <= deadZone)
+                {
+                    this.y=0.0f;
+                }
+                else
+                {
+                    this.y=y;
+                }
+                
             }
             
         }

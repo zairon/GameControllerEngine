@@ -38,11 +38,46 @@ public abstract class GameControllerManager
     }
     
     /**
+     * Create a generic windows game controller
+     * @param id The identifier for the control to create
+     * @return The game controller instance
+     */
+    public static GameController createWindowsControllerOnly(int id)
+    {
+        final int maxId=GameControllerNatives.getNumControllers();
+        
+        // check the id limit
+        if(id < 0)
+        {
+            throw new IllegalArgumentException("Cannot create id " + id +", value is illegal\n");
+        }
+        else if(id > maxId)
+        {
+            throw new IllegalArgumentException("Cannot create id " + id +", only supporting up to " + maxId + " controller IDs\n");
+        }
+        
+        GameController controller;
+        
+        // make a generic controller
+        controller=new WindowsGameController();
+        
+        // set up the instance
+        controller.id=id;
+        controller.caps=GameControllerNatives.getControllerCaps(id);
+        controller.state=new GameControllerState();
+        
+        // do an initial poll
+        controller.poll();
+        
+        return controller;
+    }
+    
+    /**
      * Create an XBox-compatible controller if possible, otherwise a generic windows game controller
      * @param id The identifier for the control to create
      * @return The game controller instance
      */
-    protected static GameController createWindowsController(int id)
+    public static GameController createWindowsController(int id)
     {
         final int maxId=GameControllerNatives.getNumControllers();
         
@@ -106,6 +141,28 @@ public abstract class GameControllerManager
         
         return list;
     }
+    
+    /**
+     * Create a list of the connected Windows controllers, but all will be generic.
+     * @return The list of all Windows controllers
+     */
+    public static ArrayList<GameController> getWindowsControllersOnly()
+    {
+        ArrayList<GameController> list=new ArrayList<GameController>();
+        
+        for(int id=0; id < GameControllerNatives.getNumControllers() ; ++id)
+        {
+            GameController controller=createWindowsControllerOnly(id);
+            
+            if(controller!=null)
+            {
+                list.add(controller);
+            }
+        }
+        
+        return list;
+    }
+    
     
     /**
      * Create an XBox-compatible controller or fail.
@@ -176,7 +233,7 @@ public abstract class GameControllerManager
      * @param id The identifier for the control to create
      * @return The game controller instance
      */
-    protected static GameController createNullController(int id)
+    public static GameController createNullController(int id)
     {
         NullGameController controller=new NullGameController();
         

@@ -56,7 +56,9 @@ public class WindowsGameController extends XBoxGameController
         zAxis.setP(state.getZ());
         leftTriggerAxis.setP(state.getLeftTrigger());
         rightTriggerAxis.setP(state.getRightTrigger());        
-        ruPoint.setPos(state.getR(), state.getU());
+        // R axis is up/down axis, U is left/right axis
+        // so flip them for the axis position
+        ruPoint.setPos(state.getU(), state.getR());
         vAxis.setP(state.getV());
         
         // if the POV is neutral, use 0,0, otherwise figure out
